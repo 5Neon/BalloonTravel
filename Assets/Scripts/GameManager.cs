@@ -9,6 +9,11 @@ public class GameManager : MonoBehaviour
     public static bool isGround = true;
     public static bool onAir = false;   // 섬 밑으로 떨어지는 상태, 공중에 있는지 확인
 
+    private void Start()
+    {
+
+    }
+
     void Update()
     {
 

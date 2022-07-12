@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 5f;
     public float onBalloonSpeed = 0.5f;
     public float rotateSpeed = 10f;
+    public float deployHeight = 40f;
     public Transform startPoint;
 
     private Vector3 vel;
@@ -91,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
     {
         // 땅 위에 있는지 확인
         isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
-        // Debug.DrawRay(transform.position, Vector3.down * 0.6f, Color.red);
+        //Debug.DrawRay(transform.position, Vector3.down * 0.1f, Color.red);
         GroundCheck();
 
         // 카메라를 기준으로 상하좌우 움직임
@@ -131,14 +132,12 @@ public class PlayerMovement : MonoBehaviour
             // 떨어지는 위치(맵 배치에 따라 스폰 장소는 달라질 수 있음) 
             Vector3 deployPoint = GameObject.FindWithTag("Island").transform.position;
 
-            transform.position = new Vector3(deployPoint.x, 30f, deployPoint.z);
+            transform.position = new Vector3(deployPoint.x, deployHeight, deployPoint.z);
 
             animator.SetBool("isHanging", true);
 
-            clone = Instantiate(Balloons, BalloonAttachPosition.transform.position, Balloons.transform.rotation * Quaternion.Euler(Balloons.transform.rotation.x, Balloons.transform.rotation.y, Random.Range(-180f, 180f)));
+            clone = Instantiate(Balloons, BalloonAttachPosition.transform.position, Balloons.transform.rotation * Quaternion.Euler(Balloons.transform.rotation.x, Balloons.transform.rotation.y, Random.Range(-90f, 90f)));
             clone.transform.SetParent(BalloonAttachPosition.transform);
-
-            // StartCoroutine(CameraUp());
 
             // 낙하속도
             if (GameManager.onAir == true)
@@ -182,23 +181,30 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 direction = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 
-        // 공중에 있을 때 이동속도 감소
-        //if (!GameManager.onAir && GameManager.isGround)
-        //{
         rightMovement = verticalMovement * speed * Time.deltaTime * Input.GetAxis("Horizontal");
         upMovement = horizontalMovement * speed * Time.deltaTime * Input.GetAxis("Vertical");
-        //}
-        //else
-        //{
-        //    rightMovement = verticalMovement * onBalloonSpeed * Time.deltaTime * Input.GetAxis("Horizontal");
-        //    upMovement = horizontalMovement * onBalloonSpeed * Time.deltaTime * Input.GetAxis("Vertical");
-        //}
 
         Vector3 heading = Vector3.Normalize(rightMovement + upMovement);
 
         transform.forward = heading;
-        transform.position += rightMovement;
-        transform.position += upMovement;
+
+        direction = Camera.main.transform.TransformDirection(direction);
+        direction.y = 0;
+
+        if (rb.drag != 0)
+        {
+            rb.MovePosition(rb.position + direction * onBalloonSpeed * Time.deltaTime);
+        }
+        else
+        {
+            rb.MovePosition(rb.position + direction * speed * Time.deltaTime);
+        }
+
+        // 공중에 있을 때 이동속도 감소
+
+        //transform.position += upMovement;
+        //transform.position += rightMovement;
+
     }
 
     void Jump()
@@ -207,6 +213,7 @@ public class PlayerMovement : MonoBehaviour
         animator.SetBool("isJumping", true);
         animator.SetBool("isGround", false);
 
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 
@@ -222,20 +229,6 @@ public class PlayerMovement : MonoBehaviour
         clone.transform.parent = null;
         Destroy(clone, 5f);
 
-        // StartCoroutine(CameraDown());
         yield return null;
-
     }
-
-    //IEnumerator CameraUp()
-    //{
-    //    PlayerCamera.transform.position = Vector3.SmoothDamp(PlayerCamera.transform.position, PlayerCamera.transform.position + new Vector3(0, 1.5f, 0), ref vel, 0.2f);
-    //    yield return null;
-    //}
-
-    //IEnumerator CameraDown()
-    //{
-    //    PlayerCamera.transform.position = Vector3.SmoothDamp(PlayerCamera.transform.position, PlayerCamera.transform.position - new Vector3(0, 1.5f, 0), ref vel, 0.2f);
-    //    yield return null;
-    //}
 }
