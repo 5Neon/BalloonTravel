@@ -8,10 +8,15 @@ public class TextManager : MonoBehaviour
     public static bool isJumped = false;
     public static bool isTalking = false;
 
-    public Text text; // 대화창 내용
-    public Text CharacterName; // 인물 이름
+    public Text text;           // 대화창 내용
+    public Text CharacterName;  // 인물 이름
 
-    public GameObject Text_Ui; // 대화창 UI
+    public GameObject Text_Ui;            // 대화창 UI
+    public GameObject text_Change;        // 개채 참조
+
+    public GameObject character_UI;
+
+    Character_UI gamemanager;
 
     void Update()
     {
@@ -22,33 +27,43 @@ public class TextManager : MonoBehaviour
     {
         yield return null;
         Text_Ui.SetActive(false);
+        //UI_null();
         StopAllCoroutines();
         yield break;
     }
 
-    public IEnumerator Dialogue_Inout(int Content, int Name) // 다이얼로그 인_아웃 대화 스크립트
+    public IEnumerator Dialogue_Inout(int Content, int Name, bool isnottalk) // 다이얼로그 인_아웃 대화 스크립트
     {
         List<Dictionary<string, object>> data_Dialog = CSVReader.Read("Dialog");
         Text_Ui.SetActive(true);
 
         CharacterName.text = data_Dialog[Content]["Name"].ToString();
         StartCoroutine(Typing(text, data_Dialog[Name]["Content"].ToString()));
+
+        gamemanager = character_UI.GetComponent<Character_UI>();
+        if (!isnottalk)
+        {
+            StartCoroutine(gamemanager.Text_UI_image(Content));
+        }
+        
+
         yield break;
     }
-
     public IEnumerator Typing(Text typingText, string message)
     {
         for (int i = 0; i < message.Length; i++)
         {
             yield return null;
             typingText.text = message.Substring(0, i + 1);
-
-            if (Input.GetKeyDown(KeyCode.Z))
+            if (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0))
             {
                 yield break;
             }
         }
+
     }
+
+
 
     public IEnumerator Dialogue(int Content, int Name, int FinerContent) // 다이얼로그 대화 스크립트
     {
@@ -57,6 +72,9 @@ public class TextManager : MonoBehaviour
 
         CharacterName.text = data_Dialog[Name]["Name"].ToString();
         StartCoroutine(Typing(text, data_Dialog[Content]["Content"].ToString()));
+
+        gamemanager = character_UI.GetComponent<Character_UI>();
+        StartCoroutine(gamemanager.Text_UI_image(Content));
 
         while (true)
         {
@@ -70,13 +88,23 @@ public class TextManager : MonoBehaviour
                 CharacterName.text = data_Dialog[Name]["Name"].ToString();
                 StartCoroutine(Typing(text, data_Dialog[Content]["Content"].ToString()));
 
+                gamemanager = character_UI.GetComponent<Character_UI>();
+                StartCoroutine(gamemanager.Text_UI_image(Content));
+
                 if (Content == FinerContent + 1 || Input.GetKeyDown(KeyCode.Z) && Input.GetMouseButtonDown(0))
                 {
-                    Text_Ui.SetActive(false);
+                   
                     GameManager.isTalking = false;
+                   
+                    Text_Ui.SetActive(false);
+                    Debug.Log("대화 마지막 디보그");
+
+
+                    
                     yield break;
                 }
             }
         }
     }
 }
+
