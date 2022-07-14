@@ -2,21 +2,31 @@ Shader "Roystan/ToonShader"
 {
 Properties
 {
+	//색
 	_Color("Color", Color) = (1,1,1,1)
+
+	//텍스쳐
 	_MainTex("Main Texture", 2D) = "white" {}
 
-	//정반사 제어
-	[HDR]
-	_AmbientColor("Ambient Color", Color) = (0.4,0.4,0.4,1)
-	[HDR]
-	_SpecularColor("Specular Color", Color) = (0.9,0.9,0.9,1)
+	//반사 크기 제어
 	_Glossiness("Glossiness", Float) = 32
 	
-	//반사광 제어
+	//반사광 색
 	[HDR]
 	_RimColor("Rim Color", Color) = (1,1,1,1)
+
+	//반사광 크기
 	_RimAmount("Rim Amount", Range(0, 1)) = 0.716
-	_RimThreshold("Rim Threshold", Range(0, 1)) = 0.1		
+
+	//반사광 경계
+	_RimThreshold("Rim Threshold", Range(0, 1)) = 0.1
+	
+	//광량 제어
+	[HDR]
+	_ColorBrightness("ColorBrightbess", Color) = (35,35,35,1)
+
+	//그림자 경계선 제어
+    _ShdowSmooth("ShadowSmooth",Float) = 0.01
 }
 
 SubShader
@@ -28,11 +38,13 @@ SubShader
 		{
 			"LightMode" = "ForwardBase"
 			"PassFlags" = "OnlyDirectional"
+			"RenderType"= "Opaque"
 		}
 		
 		CGPROGRAM
 		#pragma vertex vert
 		#pragma fragment frag
+		#pragma multi_compile_fwdbase
 		
 		#include "UnityCG.cginc"
 		#include "Lighting.cginc"
@@ -73,14 +85,14 @@ SubShader
 			
 			float4 _Color;
 
-			float4 _AmbientColor;
-
-			float4 _SpecularColor;
-			float _Glossiness;		
+			float _Glossiness;
 
 			float4 _RimColor;
 			float _RimAmount;
-			float _RimThreshold;	
+			float _RimThreshold;
+
+			float4 _ColorBrightness;
+			float _ShdowSmooth;
 
 			float4 frag (v2f i) : SV_Target
 			{
@@ -93,10 +105,8 @@ SubShader
 				//그림자 맵 샘플링
 				float shadow = SHADOW_ATTENUATION(i);
 
-				//명암 분할 및 부드럽게 보간
-				float lightIntensity = smoothstep(0, 0.01, NdotL * shadow);	
-
-				//빛 강화
+				//빛 명암 분할 및 강도
+				float lightIntensity = smoothstep(0, _ShdowSmooth, NdotL * shadow);	
 				float4 light = lightIntensity * _LightColor0;
 				
 				//정반사 계산
@@ -106,7 +116,7 @@ SubShader
 				//광택
 				float specularIntensity = pow(NdotH * lightIntensity, _Glossiness * _Glossiness);
 				float specularIntensitySmooth = smoothstep(0.005, 0.01, specularIntensity);
-				float4 specular = specularIntensitySmooth * _SpecularColor;				
+				float4 specular = specularIntensitySmooth * 1; //				
 				
 				//반사광 계산
 				float rimDot = 1 - dot(viewDir, normal);
@@ -116,12 +126,20 @@ SubShader
 
 				float4 sample = tex2D(_MainTex, i.uv);
 
-				return (light + _AmbientColor + specular + rim) * _Color * sample;
+				//float shadow = SHADOW_ATTENUATION(i);
+
+				//return float4(0, 0, 0, (1 - shadow) * _Alpha);
+
+				return (light + _ColorBrightness + specular + rim) * _Color * sample;
 			}
 			ENDCG
 		}
 
 		//그림자 부여
 		UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
+		//UsePass "Toon/Lighted/FORWARD"
+		//UsePass "Toon/Basic Outline/OUTLINE"
+		//UsePass "Shaders/SomeShader/SHADOWCASTER"
+		//UsePass "Shaders/SomeOtherShader/OUTLINEPASS"
 	}
 }

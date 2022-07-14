@@ -76,7 +76,7 @@ public class TextManager : MonoBehaviour
         {
             yield return null;
 
-            if (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0))
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
             {
                 Content++;
                 Name++;
@@ -87,7 +87,7 @@ public class TextManager : MonoBehaviour
                 gamemanager = character_UI.GetComponent<Character_UI>();
                 StartCoroutine(gamemanager.Text_UI_image(Content));
 
-                if (Content == FinerContent + 1 || Input.GetKeyDown(KeyCode.Z) && Input.GetMouseButtonDown(0))
+                if (Content == FinerContent + 1 || Input.GetKeyDown(KeyCode.Space) && Input.GetMouseButtonDown(0))
                 {
 
                     GameManager.isTalking = false;
