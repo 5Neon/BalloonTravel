@@ -11,18 +11,18 @@ public class Clouds : MonoBehaviour
     float randomPositionY;
     float randomPositionZ;
 
-    void Start()
-    {
-        for(int i = 0; i < 2; i++)
-        {
-            randomPositionX = Random.Range(-200f, 200f);
-            randomPositionY = Random.Range(-40f, -20f);
-            randomPositionZ = Random.Range(-200f, 200f);
+    //void Start()
+    //{
+    //    for(int i = 0; i < 2; i++)
+    //    {
+    //        randomPositionX = Random.Range(-200f, 200f);
+    //        randomPositionY = Random.Range(-40f, -20f);
+    //        randomPositionZ = Random.Range(-200f, 200f);
 
-            //Instantiate(CloudPrefabs[i], playerPosition.transform.position, CloudPrefabs[i].transform.rotation);
-            //transform.SetParent(playerPosition.transform);
-        }
-    }
+    //        //Instantiate(CloudPrefabs[i], playerPosition.transform.position, CloudPrefabs[i].transform.rotation);
+    //        //transform.SetParent(playerPosition.transform);
+    //    }
+    //}
 
     void Update()
     {
