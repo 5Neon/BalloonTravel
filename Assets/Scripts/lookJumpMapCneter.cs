@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class lookCneter : MonoBehaviour
+public class lookJumpMapCneter : MonoBehaviour
 {
     public Transform jumpMapCenter;
     private float timeCounter = 0;

@@ -13,15 +13,20 @@ public class Clouds : MonoBehaviour
 
     void Start()
     {
-        randomPositionX = Random.Range(-200f, 200f);
-        randomPositionY = Random.Range(-40f, -20f);
-        randomPositionZ = Random.Range(-200f, 200f);
+        for(int i = 0; i < 2; i++)
+        {
+            randomPositionX = Random.Range(-200f, 200f);
+            randomPositionY = Random.Range(-40f, -20f);
+            randomPositionZ = Random.Range(-200f, 200f);
 
-        //Instantiate(CloudPrefabs, playerPosition.transform.position + new Vector3(randomPositionX, randomPositionY, randomPositionZ), playerPosition.transform.rotation * Quaternion.Euler(playerPosition.transform.rotation.x, playerPosition.transform.rotation.y, Random.Range(-90f, 90f)));
+            //Instantiate(CloudPrefabs[i], playerPosition.transform.position, CloudPrefabs[i].transform.rotation);
+            //transform.SetParent(playerPosition.transform);
+        }
     }
 
     void Update()
     {
         //Instantiate()
     }
+
 }

@@ -12,9 +12,9 @@ public class Balloons : MonoBehaviour
     private float rand1;
     private float rand2;
 
+
     public void Start()
     {
-        destination = new Vector3(transform.position.x + Random.Range(10f, -10f), transform.position.y + 40f, transform.position.z + Random.Range(10f, -10f));  // 풍선이 올라가면서 좌우로 랜덤하게 이동
         GetComponent<Renderer>().material.color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);        // 랜덤한 색상 지정
 
         rand1 = Random.Range(700f, 1300f);  // 랜덤 고도(풍선이 올라가는 높이)
@@ -23,6 +23,9 @@ public class Balloons : MonoBehaviour
 
     public void Update()
     {
+        if (GameManager.onBalloon)
+            destination = new Vector3(transform.position.x + Random.Range(10f, -10f), transform.position.y + 40f, transform.position.z + Random.Range(10f, -10f));  // 풍선이 올라가면서 좌우로 랜덤하게 이동
+
         if (GameManager.onBalloon == false)
         {
             transform.position = Vector3.SmoothDamp(transform.position, destination, ref speed, rand1 * Time.deltaTime);

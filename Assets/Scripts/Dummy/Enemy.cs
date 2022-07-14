@@ -5,97 +5,28 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
 {
-    [Header("AI")]
-    public float AngleOfField;
-    public float ViewDistance;
-    public LayerMask targetMask;
-
     public Transform target;
     public NavMeshAgent _enemy;
+    private Animator anim;
 
     [Header("전투 관련 값")]
-    public float HP;
     public float Damage;
 
     void Start()
     {
         _enemy = GetComponent<NavMeshAgent>();
+        anim = GetComponent<Animator>();
     }
 
     void FixedUpdate()
     {
-        View();
-    }
+        _enemy.destination = target.transform.position;
+        anim.SetBool("Move", true);
 
-    private Vector3 BoundaryAngle(float _angle)
-    {
-        _angle += transform.eulerAngles.y;
-        return new Vector3(Mathf.Sin(_angle * Mathf.Deg2Rad), 0f, Mathf.Cos(_angle * Mathf.Deg2Rad));
-    }
-
-    private void View()
-    {
-        //Vector3 _leftBoundary = BoundaryAngle(-AngleOfField * 0.5f);
-        //Vector3 _rightBoundary = BoundaryAngle(AngleOfField * 0.5f);
-
-        // 시야각 표시
-        // Debug.DrawRay(transform.position + transform.up, _leftBoundary, Color.red);
-        // Debug.DrawRay(transform.position + transform.up, _rightBoundary, Color.red);
-
-
-        Vector3 _direction = (target.position - transform.position).normalized;
-        float _angle = Vector3.Angle(_direction, transform.forward);
-
-        if (_angle < AngleOfField * 0.5f)
+        if(_enemy.remainingDistance < _enemy.stoppingDistance)
         {
-            RaycastHit _hit;
-            if (Physics.Raycast(transform.position + transform.up, _direction, out _hit, ViewDistance) && _hit.transform.name == "Player")
-            {
-                _enemy.SetDestination(target.position);
-                Debug.Log("플레이어가 시야 내에 있습니다.");
-
-                //플레이어의 방향 표시
-                // Debug.DrawRay(transform.position + transform.up, _direction, Color.blue);
-            }
-            else
-            {
-                _enemy.ResetPath();
-                Debug.Log("대기 중");
-            }
+            anim.SetBool("Move", false);
         }
     }
 
-    private void Reset()
-    {
-
-    }
 }
-
-
-/*
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.SceneManagement;
-
-public class Enemy : MonoBehaviour
-{
-    public GameObject target;
-    NavMeshAgent agent;
-    Animator anim;
-
-    void Start()
-    {
-        agent = GetComponent<NavMeshAgent>();
-        anim = GetComponentInChildren<Animator>();
-    }
-
-    void Update()
-    {
-        agent.destination = target.transform.position;
-        anim.SetFloat("Speed", agent.velocity.magnitude);
-    }
-
-}
-*/

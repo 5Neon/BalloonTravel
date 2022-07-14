@@ -6,7 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     private Animator animator;
 
-    // ±âº» ÇÃ·¹ÀÌ¾î ¼¼ÆÃ(Ä«¸Ş¶ó, ¼Óµµ, Á¦ÇÑ µî)
+    // ê¸°ë³¸ í”Œë ˆì´ì–´ ì„¸íŒ…(ì¹´ë©”ë¼, ì†ë„, ì œí•œ ë“±)
     [Header("Player Settings")]
     public Camera PlayerCamera;
     public float movementSpeed = 4f;
@@ -28,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
     Vector3 horizontalMovement;
     Vector3 verticalMovement;
 
-    // ÇÃ·¹ÀÌ¾î Á¡ÇÁ ¼¼ÆÃ(Èû, µô·¹ÀÌ)
+    // í”Œë ˆì´ì–´ ì í”„ ì„¸íŒ…(í˜, ë”œë ˆì´)
     [Header("Jump Setting")]
     public float jumpForce = 5f;
     private bool readyToJump;
@@ -53,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
     public Transform BalloonAttachPosition;
     [Space(10)]
 
-    // Á¡ÇÁ¸Ê Àü¿ë
+    // ì í”„ë§µ ì „ìš©
     [Header("Jump Map Settings")]
     private float timeCounter = 0;
     public float jumpMapSpeed = 0.4f;
@@ -61,7 +61,10 @@ public class PlayerMovement : MonoBehaviour
     [HideInInspector]
     public float jumpMapRadiusSize = 15f;
 
-    // ¿­±â±¸¿ë
+    [HideInInspector]
+    Vector3 deployPoint;
+
+    // ì—´ê¸°êµ¬ìš©
     //[Header("AirBalloon")]
     //public Transform AirBalloonTarget;
     //RaycastHit hit;
@@ -69,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        //transform.position = startPoint.position;     // ½ÃÀÛÇÒ ¶§ ÁöÁ¤µÈ À§Ä¡·Î ÀÌµ¿
+        //transform.position = startPoint.position;     // ì‹œì‘í•  ë•Œ ì§€ì •ëœ ìœ„ì¹˜ë¡œ ì´ë™
     }
 
     private void Awake()
@@ -82,15 +85,15 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Á¡ÇÁ
-        if (Input.GetKeyDown(KeyCode.Space) && readyToJump && isGrounded && GameManager.isTalking == false && GameManager.state != GameManager.Island.Puzzle_Maze)  // ¹Ì·Î ¸Ê¿¡¼­¸¸ Á¡ÇÁ Á¦ÇÑ
+        // ì í”„
+        if (Input.GetKeyDown(KeyCode.Space) && readyToJump && isGrounded && GameManager.isTalking == false && GameManager.state != GameManager.Island.Puzzle_Maze)  // ë¯¸ë¡œ ë§µì—ì„œë§Œ ì í”„ ì œí•œ
         {
             readyToJump = false;
             StartCoroutine(JumpDelay());
             Jump();
         }
 
-        // ¿­±â±¸ Å¾½Â
+        // ì—´ê¸°êµ¬ íƒ‘ìŠ¹
         //if(Physics.Raycast(gameObject.transform.position, gameObject.transform.forward, out hit, 10))
         //{
         //    Debug.Log(hit.collider.name);
@@ -109,7 +112,7 @@ public class PlayerMovement : MonoBehaviour
         OnAirCheck();
         IslandCheck();
 
-        // ÇÃ·¹ÀÌ¾î ÀÔ·Â ¹× ÀÌµ¿ ¾Ö´Ï¸ŞÀÌ¼Ç
+        // í”Œë ˆì´ì–´ ì…ë ¥ ë° ì´ë™ ì• ë‹ˆë©”ì´ì…˜
         if (GameManager.state != GameManager.Island.Puzzle_Jump || !GameManager.doJumpMap)
         {
             if ((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A) ||
@@ -149,7 +152,7 @@ public class PlayerMovement : MonoBehaviour
 
     void GroundCheck()
     {
-        // ¶¥ À§¿¡ ÀÖ´ÂÁö È®ÀÎ
+        // ë•… ìœ„ì— ìˆëŠ”ì§€ í™•ì¸
         isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
         //Debug.DrawRay(transform.position, Vector3.down * 0.1f, Color.red);
 
@@ -205,6 +208,10 @@ public class PlayerMovement : MonoBehaviour
         {
             if (Islandcheck.collider.tag == "Island")
             {
+                // ë–¨ì–´ì§€ëŠ” ìœ„ì¹˜
+                deployPoint = Islandcheck.collider.transform.Find("RedeployPoint").gameObject.transform.position;
+                //Debug.Log(deployPoint);
+
                 switch (Islandcheck.collider.name)
                 {
                     default:
@@ -243,7 +250,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Move()
     {
-        // Ä«¸Ş¶ó¸¦ ±âÁØÀ¸·Î »óÇÏÁÂ¿ì ¿òÁ÷ÀÓ
+        // ì¹´ë©”ë¼ë¥¼ ê¸°ì¤€ìœ¼ë¡œ ìƒí•˜ì¢Œìš° ì›€ì§ì„
         horizontalMovement = Camera.main.transform.forward;
         horizontalMovement.y = 0;
         horizontalMovement = Vector3.Normalize(horizontalMovement);
@@ -273,21 +280,21 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        // Á¡ÇÁ¸Ê¿ë 
+        // ì í”„ë§µìš© 
         if (GameManager.state == GameManager.Island.Puzzle_Jump && GameManager.doJumpMap)
         {
             float posx = jumpMapCenter.position.x + Mathf.Cos(timeCounter) * jumpMapRadiusSize;
             float posy = transform.position.y;
             float posz = jumpMapCenter.position.z + Mathf.Sin(timeCounter) * jumpMapRadiusSize;
 
-            // Ä³¸¯ÅÍ ÀÌµ¿(Á¡ÇÁ¸Ê)
-            transform.position = new Vector3(posx, posy, posz);     // ¸®Áöµå¹Ùµğ¸¦ È°¿ëÇÒ ¼ö ÀÖµµ·Ï ¼öÁ¤À» ÇØ¾ßÇÔ
+            // ìºë¦­í„° ì´ë™(ì í”„ë§µ)
+            transform.position = new Vector3(posx, posy, posz);     // ë¦¬ì§€ë“œë°”ë””ë¥¼ í™œìš©í•  ìˆ˜ ìˆë„ë¡ ìˆ˜ì •ì„ í•´ì•¼í•¨
             //rb.MovePosition(rb.position + new Vector3(posx, posy, posz) * Time.deltaTime);
             //rb.AddForce(transform.forward * jumpMapSpeed, ForceMode.Force);
         }
 
 
-        // °øÁß¿¡ ÀÖÀ» ¶§ ÀÌµ¿¼Óµµ °¨¼Ò
+        // ê³µì¤‘ì— ìˆì„ ë•Œ ì´ë™ì†ë„ ê°ì†Œ
 
         //transform.position += upMovement;
         //transform.position += rightMovement;
@@ -313,12 +320,9 @@ public class PlayerMovement : MonoBehaviour
 
     void RedeployPlayer()
     {
-        // ¼¶ ¾Æ·¡·Î ¶³¾îÁ³À» ¶§
+        // ì„¬ ì•„ë˜ë¡œ ë–¨ì–´ì¡Œì„ ë•Œ
         if (transform.position.y < redeployLimitAltitude)
         {
-            // ¶³¾îÁö´Â À§Ä¡(¸Ê ¹èÄ¡¿¡ µû¶ó ½ºÆù Àå¼Ò´Â ´Ş¶óÁú ¼ö ÀÖÀ½) 
-            Vector3 deployPoint = GameObject.FindWithTag("Island").transform.position;
-
             transform.position = new Vector3(deployPoint.x, deployAltitude, deployPoint.z);
 
             animator.SetBool("isHanging", true);
@@ -326,7 +330,7 @@ public class PlayerMovement : MonoBehaviour
 
             InstantiateBalloon();
 
-            // ³«ÇÏ¼Óµµ
+            // ë‚™í•˜ì†ë„
             if (GameManager.onAir == true)
             {
                 rb.drag = fallSpeed;

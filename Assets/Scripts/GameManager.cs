@@ -32,6 +32,6 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         //Debug.Log(state);
-        //Debug.Log(doJumpMap);
+        //Debug.Log(onBalloon);
     }
 }
