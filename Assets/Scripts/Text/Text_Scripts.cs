@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Text_Scripts : MonoBehaviour
 {
-
     public GameObject textmanager; // 텍스트 매니져 
 
     public int Dialog_Content; // 내부 대화 내용
@@ -13,7 +12,7 @@ public class Text_Scripts : MonoBehaviour
 
     TextManager gamemanager;
 
-    public  void OnTriggerEnter(Collider other)
+    public void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Player")
         {
@@ -21,14 +20,13 @@ public class Text_Scripts : MonoBehaviour
             gamemanager = textmanager.GetComponent<TextManager>(); //참조를 위한 재선헌
             StartCoroutine(gamemanager.Dialogue(Dialog_Name, Dialog_Content, Dialog_FinerContent)); //코루틴 시작 함수
         }
-
     }
 
     public void OnTriggerExit(Collider other)
     {
         if (other.tag == "Player")
         {
-              
+
         }
     }
 }

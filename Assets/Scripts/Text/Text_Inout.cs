@@ -30,5 +30,4 @@ public class Text_Inout : MonoBehaviour
             StartCoroutine(gamemanager.Stop_Dialogue()); //ÄÚ·çÆ¾
         }
     }
-
 }

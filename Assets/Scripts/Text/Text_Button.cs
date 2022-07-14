@@ -14,9 +14,7 @@ public class Text_Button : MonoBehaviour
     public bool Button_Actvie;
     public bool O; //정답 버튼
     public bool button_O = true;
-    
 
-    
     TextManager gamemanager; // 재선헌 
 
     public void OnTriggerEnter(Collider other)
@@ -31,6 +29,7 @@ public class Text_Button : MonoBehaviour
             }
         }
     }
+
     IEnumerator buttenManager()
     {
         float i = 0.001f;
@@ -65,6 +64,7 @@ public class Text_Button : MonoBehaviour
                 }
             }
         }
+
         if (O)
         {
             while (button_O)
@@ -83,6 +83,5 @@ public class Text_Button : MonoBehaviour
                 }
             }
         }
-
     }
 }

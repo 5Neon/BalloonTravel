@@ -2,21 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
 public class Character_UI : MonoBehaviour
 {
     public GameObject[] Elphis;
-
     public GameObject[] Plila;
-
     public GameObject[] Demos;
-
     public GameObject[] Gerffa;
 
     public IEnumerator Text_UI_image(int Content) // 캐릭터 UI
     {
-        
         yield return null;
 
         List<Dictionary<string, object>> data_Dialog = CSVReader.Read("Dialog");
@@ -49,7 +43,7 @@ public class Character_UI : MonoBehaviour
 
         if (charater == "Elphis_nomal")  // 주인공
         {
-            Elphis [0].SetActive(true);
+            Elphis[0].SetActive(true);
         }
         if (charater == "Elphis_happy")
         {
@@ -60,7 +54,7 @@ public class Character_UI : MonoBehaviour
             Elphis[2].SetActive(true);
         }
         if (charater == "Elphis_surprised")
-        { 
+        {
             Elphis[3].SetActive(true);
         }
         if (charater != "Elphis_nomal" && charater != "Elphis_happy" && charater != "Elphis_bed" && charater != "Elphis_surprised")
@@ -117,7 +111,7 @@ public class Character_UI : MonoBehaviour
         {
             Gerffa[0].SetActive(true);
         }
-        if (charater == "Gerffa_nomal") 
+        if (charater == "Gerffa_nomal")
         {
             Gerffa[1].SetActive(true);
         }

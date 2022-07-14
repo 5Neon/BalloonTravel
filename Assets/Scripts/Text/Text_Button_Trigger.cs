@@ -28,6 +28,5 @@ public class Text_Button_Trigger : MonoBehaviour
             text_button3.GetComponent<Text_Button>().Button_Actvie = false;
             text_button4.GetComponent<Text_Button>().Button_Actvie = false;
         }
-        
     }
 }

@@ -14,16 +14,16 @@ public class Balloons : MonoBehaviour
 
     public void Start()
     {
-        destination = new Vector3(Random.Range(10f, -10f), 40f, Random.Range(10f, -10f));
-        GetComponent<Renderer>().material.color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+        destination = new Vector3(transform.position.x + Random.Range(10f, -10f), transform.position.y + 40f, transform.position.z + Random.Range(10f, -10f));  // 풍선이 올라가면서 좌우로 랜덤하게 이동
+        GetComponent<Renderer>().material.color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);        // 랜덤한 색상 지정
 
-        rand1 = Random.Range(700f, 1300f);
-        rand2 = Random.Range(0.5f, 2.0f)
-;    }
+        rand1 = Random.Range(700f, 1300f);  // 랜덤 고도(풍선이 올라가는 높이)
+        rand2 = Random.Range(0.5f, 2.0f);   // 랜덤 속도(줄을 수직으로 만드는 속도)
+    }
 
     public void Update()
     {
-        if (GameManager.isGround == true)
+        if (GameManager.onBalloon == false)
         {
             transform.position = Vector3.SmoothDamp(transform.position, destination, ref speed, rand1 * Time.deltaTime);
             BallonRope.transform.rotation = Quaternion.Slerp(BallonRope.transform.rotation, Quaternion.Euler(-90, 0, 0), rand2 * Time.deltaTime);

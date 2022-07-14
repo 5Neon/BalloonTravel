@@ -8,11 +8,20 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Player Settings")]
     public Camera PlayerCamera;
-    public float speed = 5f;
+    public float movementSpeed = 5f;
     public float onBalloonSpeed = 0.5f;
     public float rotateSpeed = 10f;
-    public float deployHeight = 40f;
+    public float redeployLimitAltitude = -10f;
+    public float deployAltitude = 40f;
     public Transform startPoint;
+
+    [Header("Jump Map Settings")]
+    private float timeCounter = 0;
+    public float jumpMapSpeed = 0.4f;
+    public float jumpMapRadiusSize = 10f;
+
+    public Transform jumpMapCenter;
+    public GameObject Look;
 
     private Vector3 vel;
 
@@ -24,15 +33,15 @@ public class PlayerMovement : MonoBehaviour
     Vector3 verticalMovement;
 
     [Header("Jump Setting")]
-    public float jumpForce;
+    public float jumpForce = 5f;
     private bool readyToJump;
-    public float jumpWaitTime = 2f;
+    public float jumpWaitTime = 1.2f;
     [Space(10)]
 
-    public Rigidbody rb;
+    Rigidbody rb;
 
     [Header("Falling Setting")]
-    public float fallSpeed = 5f;
+    public float fallSpeed = 3.5f;
     [Space(10)]
 
     [Header("Ground Check")]
@@ -54,6 +63,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()        // 시작할 때 지정된 위치로 이동
     {
+        //GameManager.state = GameManager.Island.Puzzle_Jump;
         transform.position = startPoint.position;
     }
 
@@ -68,7 +78,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         // 점프
-        if (Input.GetKeyDown(KeyCode.Space) && readyToJump && isGrounded && GameManager.isTalking == false)
+        if (Input.GetKeyDown(KeyCode.Space) && readyToJump && isGrounded && GameManager.isTalking == false && GameManager.state != GameManager.Island.Puzzle_Maze)  // 미로 맵에서만 점프 제한
         {
             readyToJump = false;
             StartCoroutine(JumpDelay());
@@ -90,10 +100,9 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 땅 위에 있는지 확인
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
-        //Debug.DrawRay(transform.position, Vector3.down * 0.1f, Color.red);
         GroundCheck();
+        OnAirCheck();
+        IslandCheck();
 
         // 카메라를 기준으로 상하좌우 움직임
         horizontalMovement = Camera.main.transform.forward;
@@ -101,16 +110,17 @@ public class PlayerMovement : MonoBehaviour
         horizontalMovement = Vector3.Normalize(horizontalMovement);
         verticalMovement = Quaternion.Euler(new Vector3(0, 90, 0)) * horizontalMovement;
 
-        // 애니메이션 상태 업데이트
-        if ((Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow)) && GameManager.isTalking == false)
-        {
-            Move();
-            animator.SetBool("isMoving", true);
-        }
-        else
-        {
-            animator.SetBool("isMoving", false);
-        }
+        Move();
+
+        RedeployPlayer();
+    }
+
+
+    void GroundCheck()
+    {
+        // 땅 위에 있는지 확인
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundMask);
+        //Debug.DrawRay(transform.position, Vector3.down * 0.1f, Color.red);
 
         if (!isGrounded)
         {
@@ -119,35 +129,15 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            GameManager.isJumped = false;
             GameManager.isGround = true;
+            GameManager.onBalloon = false;
 
             animator.SetBool("isJumping", false);
             animator.SetBool("isGround", true);
         }
-
-        // 섬 아래로 떨어졌을 때
-        if (transform.position.y < -10)
-        {
-            // 떨어지는 위치(맵 배치에 따라 스폰 장소는 달라질 수 있음) 
-            Vector3 deployPoint = GameObject.FindWithTag("Island").transform.position;
-
-            transform.position = new Vector3(deployPoint.x, deployHeight, deployPoint.z);
-
-            animator.SetBool("isHanging", true);
-
-            clone = Instantiate(Balloons, BalloonAttachPosition.transform.position, Balloons.transform.rotation * Quaternion.Euler(Balloons.transform.rotation.x, Balloons.transform.rotation.y, Random.Range(-90f, 90f)));
-            clone.transform.SetParent(BalloonAttachPosition.transform);
-
-            // 낙하속도
-            if (GameManager.onAir == true)
-            {
-                rb.drag = fallSpeed;
-            }
-        }
     }
 
-    void GroundCheck()
+    void OnAirCheck()
     {
         RaycastHit check;
 
@@ -177,28 +167,113 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void IslandCheck()
+    {
+        RaycastHit Islandcheck;
+        if (Physics.Raycast(gameObject.transform.position, Vector3.down, out Islandcheck, Mathf.Infinity))
+        {
+            if (Islandcheck.collider.tag == "Island")
+            {
+                switch (Islandcheck.collider.name)
+                {
+                    default:
+                        GameManager.state = GameManager.Island.Air;
+                        break;
+                    case "FirstIsland":
+                    case "FirstWorld_port":
+                        GameManager.state = GameManager.Island.FirstWorld;
+                        break;
+                    case "Puzzle_Maze_Island":
+                        GameManager.state = GameManager.Island.Puzzle_Maze;
+                        break;
+                    case "Puzzle_Jump_Island":
+                        GameManager.state = GameManager.Island.Puzzle_Jump;
+                        break;
+                    case "Story_Island-1":
+                    case "Story_Island-2":
+                        GameManager.state = GameManager.Island.Story;
+                        break;
+                    case "Ending_Island":
+                        GameManager.state = GameManager.Island.Ending;
+                        break;
+                }
+            }
+
+            if (Islandcheck.collider.name == "rainbow")
+            {
+                GameManager.state = GameManager.Island.Ending;
+            }
+        }
+    }
+
     void Move()
     {
-        Vector3 direction = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-
-        rightMovement = verticalMovement * speed * Time.deltaTime * Input.GetAxis("Horizontal");
-        upMovement = horizontalMovement * speed * Time.deltaTime * Input.GetAxis("Vertical");
-
-        Vector3 heading = Vector3.Normalize(rightMovement + upMovement);
-
-        transform.forward = heading;
-
-        direction = Camera.main.transform.TransformDirection(direction);
-        direction.y = 0;
-
-        if (rb.drag != 0)
+        if (GameManager.state != GameManager.Island.Puzzle_Jump && !GameManager.isTalking)
         {
-            rb.MovePosition(rb.position + direction * onBalloonSpeed * Time.deltaTime);
+            Vector3 direction = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+
+            rightMovement = verticalMovement * movementSpeed * Time.deltaTime * Input.GetAxis("Horizontal");
+            upMovement = horizontalMovement * movementSpeed * Time.deltaTime * Input.GetAxis("Vertical");
+
+            Vector3 heading = Vector3.Normalize(rightMovement + upMovement);
+
+            transform.forward = heading;
+
+            direction = Camera.main.transform.TransformDirection(direction);
+            direction.y = 0;
+
+            if (rb.drag != 0)
+            {
+                rb.MovePosition(rb.position + direction * onBalloonSpeed * Time.deltaTime);
+            }
+            else
+            {
+                rb.MovePosition(rb.position + direction * movementSpeed * Time.deltaTime);
+            }
         }
-        else
+
+        // 플레이어 입력 및 이동 애니메이션
+        if (GameManager.state != GameManager.Island.Puzzle_Jump)
         {
-            rb.MovePosition(rb.position + direction * speed * Time.deltaTime);
+            if ((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A) ||
+                 Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow)) && !GameManager.isTalking)
+            {
+                animator.SetBool("isMoving", true);
+            }
+            else
+            {
+                animator.SetBool("isMoving", false);
+            }
         }
+
+        // 점프맵용 
+        if (GameManager.state == GameManager.Island.Puzzle_Jump)
+        {
+            animator.SetBool("isMoving", false);
+
+            if (Input.GetKey(KeyCode.LeftArrow))
+            {
+                timeCounter -= jumpMapSpeed * Time.deltaTime;
+                transform.rotation = Quaternion.Euler(transform.rotation.x, Look.transform.rotation.eulerAngles.y - 90f, transform.rotation.z);
+                animator.SetBool("isMoving", true);
+            }
+            if (Input.GetKey(KeyCode.RightArrow))
+            {
+                timeCounter += jumpMapSpeed * Time.deltaTime;
+                transform.rotation = Quaternion.Euler(transform.rotation.x, Look.transform.rotation.eulerAngles.y + 90f, transform.rotation.z);
+                animator.SetBool("isMoving", true);
+            }
+
+            float posx = jumpMapCenter.position.x + Mathf.Cos(timeCounter) * jumpMapRadiusSize;
+            float posy = transform.position.y;
+            float posz = jumpMapCenter.position.z + Mathf.Sin(timeCounter) * jumpMapRadiusSize;
+
+            // 캐릭터 이동(점프맵)
+            transform.position = new Vector3(posx, posy, posz);     // 리지드바디를 활용할 수 있도록 수정을 해야함
+            //rb.MovePosition(rb.position + new Vector3(posx, posy, posz) * Time.deltaTime);
+            //rb.AddForce(transform.forward * jumpMapSpeed, ForceMode.Force);
+        }
+
 
         // 공중에 있을 때 이동속도 감소
 
@@ -209,13 +284,42 @@ public class PlayerMovement : MonoBehaviour
 
     void Jump()
     {
-        GameManager.isJumped = true;
         animator.SetBool("isJumping", true);
         animator.SetBool("isGround", false);
 
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
+
+    void RedeployPlayer()
+    {
+        // 섬 아래로 떨어졌을 때
+        if (transform.position.y < redeployLimitAltitude)
+        {
+            // 떨어지는 위치(맵 배치에 따라 스폰 장소는 달라질 수 있음) 
+            Vector3 deployPoint = GameObject.FindWithTag("Island").transform.position;
+
+            transform.position = new Vector3(deployPoint.x, deployAltitude, deployPoint.z);
+
+            animator.SetBool("isHanging", true);
+            GameManager.onBalloon = true;
+
+            InstantiateBalloon();
+
+            // 낙하속도
+            if (GameManager.onAir == true)
+            {
+                rb.drag = fallSpeed;
+            }
+        }
+    }
+
+    void InstantiateBalloon()
+    {
+        clone = Instantiate(Balloons, BalloonAttachPosition.transform.position, Balloons.transform.rotation * Quaternion.Euler(Balloons.transform.rotation.x, Balloons.transform.rotation.y, Random.Range(-90f, 90f)));
+        clone.transform.SetParent(BalloonAttachPosition.transform);
+    }
+
 
     IEnumerator JumpDelay()
     {
@@ -227,7 +331,7 @@ public class PlayerMovement : MonoBehaviour
     IEnumerator DestroyBalloon()
     {
         clone.transform.parent = null;
-        Destroy(clone, 5f);
+        Destroy(clone, 10f);
 
         yield return null;
     }

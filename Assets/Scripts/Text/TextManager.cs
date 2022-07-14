@@ -45,10 +45,9 @@ public class TextManager : MonoBehaviour
         {
             StartCoroutine(gamemanager.Text_UI_image(Content));
         }
-        
-
         yield break;
     }
+
     public IEnumerator Typing(Text typingText, string message)
     {
         for (int i = 0; i < message.Length; i++)
@@ -60,10 +59,7 @@ public class TextManager : MonoBehaviour
                 yield break;
             }
         }
-
     }
-
-
 
     public IEnumerator Dialogue(int Content, int Name, int FinerContent) // 다이얼로그 대화 스크립트
     {
@@ -93,14 +89,12 @@ public class TextManager : MonoBehaviour
 
                 if (Content == FinerContent + 1 || Input.GetKeyDown(KeyCode.Z) && Input.GetMouseButtonDown(0))
                 {
-                   
+
                     GameManager.isTalking = false;
-                   
+
                     Text_Ui.SetActive(false);
-                    Debug.Log("대화 마지막 디보그");
+                    // Debug.Log("대화 마지막 디버그");
 
-
-                    
                     yield break;
                 }
             }

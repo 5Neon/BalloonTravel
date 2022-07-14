@@ -18,7 +18,6 @@ public class Text_Change : MonoBehaviour
     int roop_int = 0;       // 루프 문단 체크용
     public int Roop_int;    // 루프 문단
 
-
     int Talking = 0;                // 대화 카운트
     bool Talking_End_bool = false;  // 대화 멈춤
 
@@ -32,8 +31,6 @@ public class Text_Change : MonoBehaviour
     {
         Change_object(Talking_End_bool);
     }
-
-
 
     public void Change_object(bool Talking_End_bool)      // 바꿔치기 함수
     {
@@ -101,7 +98,6 @@ public class Text_Change : MonoBehaviour
                 Change4_Object.SetActive(false);
                 Change5_Object.SetActive(true);
             }
-
-        }        
+        }
     }
 }
