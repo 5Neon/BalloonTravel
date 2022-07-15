@@ -21,14 +21,12 @@ public class Text_Button_Trigger : MonoBehaviour
 
         if (Button_active)
         {
-            Trigger_Object.GetComponent<Text_Change>().Roop_Talking = false;
+            Trigger_Object.GetComponent<Text_Change>().roop = false;
             Trigger_Object.GetComponent<Text_Change>().RoopTalking();
-
             text_button.GetComponent<Text_Button>().Button_Actvie = false;
             text_button2.GetComponent<Text_Button>().Button_Actvie = false;
             text_button3.GetComponent<Text_Button>().Button_Actvie = false;
             text_button4.GetComponent<Text_Button>().Button_Actvie = false;
         }
-        
     }
 }

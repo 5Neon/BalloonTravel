@@ -5,7 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - Enemy
-  - Butten
+  - Button
+  - Island
+  - DeployPoint
+  - Balloon
+  - PortArea
   layers:
   - Default
   - TransparentFX

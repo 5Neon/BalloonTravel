@@ -16,5 +16,4 @@ public class Button_Active : MonoBehaviour
         button_active3.GetComponent<Text_Button>().Button_Actvie = true;
         button_active4.GetComponent<Text_Button>().Button_Actvie = true;
     }
-
 }

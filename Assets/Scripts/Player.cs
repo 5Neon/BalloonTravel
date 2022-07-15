@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [Header("전투 관련 값")]
-    public int HP = 6;
-    public float Damage;
+    [Header("Health")]
+    public int HP = 3;
 
     void Start()
     {
